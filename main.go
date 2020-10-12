@@ -9,7 +9,7 @@ import (
 //set up times for dyno waker to fire (6am to 9pm EST)
 type Hours []int
 
-var wakeHours = Hours{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 20, 21}
+var wakeHours = Hours{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}
 var halfHour time.Duration = 5 * time.Second
 
 //determine whether it's the correct time to fire
@@ -39,10 +39,11 @@ func wake(url string, c chan string) {
 		}
 		fmt.Println("successfully hit", url)
 		c <- url
+	} else {
+		fmt.Println("not the correct time, sleeping for half an hour")
+		time.Sleep(halfHour)
+		wake(url, c)
 	}
-	fmt.Println("not the correct time, sleeping for half an hour")
-	time.Sleep(halfHour)
-	wake(url, c)
 }
 
 //use goroutines and channels and loop through (use twitter-bot for reference)
