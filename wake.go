@@ -1,4 +1,4 @@
-package wake
+package dyno_waker
 
 import (
 	"io"
@@ -14,8 +14,8 @@ import (
 var halfHour time.Duration = 30 * time.Minute
 
 //isWakeTime checks if it is between 0600 and 1800 hours.
-func isWakeTime() bool {
-	ny, err := time.LoadLocation("America/New_York")
+func IsWakeTime(timezone string) bool {
+	ny, err := time.LoadLocation(timezone)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -25,12 +25,12 @@ func isWakeTime() bool {
 
 //Wake takes a slice of heroku app prefixes and creates a slice of urls from them.
 //If it is not the correct time, it continues. If it is the correct time, it gets the urls
-func Wake(prefixes []string) {
+func Wake(timezone string, prefixes []string) {
 	var urls []string
 	for _, pre := range prefixes {
 		urls = append(urls, "https://"+pre+".herokuapp.com")
 	}
-	ok := isWakeTime()
+	ok := IsWakeTime(timezone)
 	for range time.Tick(halfHour) {
 		if !ok {
 			continue
