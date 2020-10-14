@@ -8,7 +8,18 @@ import (
 	"time"
 )
 
-// type Hours []int
+//Wake takes a slice of heroku app prefixes and creates a slice of urls from them.
+//If it is not the correct time, it continues. If it is the correct time, it gets the urls
+func Wake(timezone string, prefixes []string) {
+	urls := convertPrefixes(prefixes)
+	ok := IsWakeTime(timezone)
+	for range time.Tick(halfHour) {
+		if !ok {
+			continue
+		}
+		getUrls(urls)
+	}
+}
 
 // var wakeHours = Hours{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}
 var halfHour time.Duration = 30 * time.Minute
@@ -23,28 +34,31 @@ func IsWakeTime(timezone string) bool {
 	return h > 6 && h < 21
 }
 
-//Wake takes a slice of heroku app prefixes and creates a slice of urls from them.
-//If it is not the correct time, it continues. If it is the correct time, it gets the urls
-func Wake(timezone string, prefixes []string) {
+func convertPrefixes(prefixes []string) []string {
 	var urls []string
 	for _, pre := range prefixes {
 		urls = append(urls, "https://"+pre+".herokuapp.com")
 	}
-	ok := IsWakeTime(timezone)
-	for range time.Tick(halfHour) {
-		if !ok {
-			continue
-		}
-		for _, uri := range urls {
-			resp, err := http.Get(uri)
-			switch {
-			case err != nil:
-				log.Printf("%s: %v", uri, err)
-			case err == nil:
-				log.Printf("%s: %d", uri, resp.StatusCode)
-				io.Copy(ioutil.Discard, resp.Body)
-				resp.Body.Close()
-			}
+	return urls
+}
+
+func getUrls(urls []string) {
+	for _, uri := range urls {
+		resp, err := http.Get(uri)
+		switch {
+		case err != nil:
+			log.Printf("%s: %v", uri, err)
+		case err == nil:
+			log.Printf("%s: %d", uri, resp.StatusCode)
+			io.Copy(ioutil.Discard, resp.Body)
+			resp.Body.Close()
 		}
 	}
+}
+
+func main() {
+	timezone := "America/New_York"
+	dynos := []string{"life-together-calculator", "truthify"}
+
+	Wake(timezone, dynos)
 }
