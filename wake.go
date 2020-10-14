@@ -10,9 +10,9 @@ import (
 
 //Wake takes a slice of heroku app prefixes and creates a slice of urls from them.
 //If it is not the correct time, it continues. If it is the correct time, it gets the urls
-func Wake(timezone string, prefixes []string) {
+func Wake(t time.Time, timezone string, prefixes []string) {
 	urls := convertPrefixes(prefixes)
-	ok := IsWakeTime(timezone)
+	ok := IsWakeTime(t, timezone)
 	for range time.Tick(halfHour) {
 		if !ok {
 			continue
@@ -21,17 +21,16 @@ func Wake(timezone string, prefixes []string) {
 	}
 }
 
-// var wakeHours = Hours{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}
 var halfHour time.Duration = 30 * time.Minute
 
 //isWakeTime checks if it is between 0600 and 1800 hours.
-func IsWakeTime(timezone string) bool {
-	ny, err := time.LoadLocation(timezone)
+func IsWakeTime(t time.Time, timezone string) bool {
+	tz, err := time.LoadLocation(timezone)
 	if err != nil {
 		log.Fatal(err)
 	}
-	h := time.Now().In(ny).Hour()
-	return h > 6 && h < 21
+	h := t.In(tz).Hour()
+	return h >= 6 && h <= 21
 }
 
 func convertPrefixes(prefixes []string) []string {
