@@ -55,10 +55,3 @@ func getUrls(urls []string) {
 		}
 	}
 }
-
-func main() {
-	timezone := "America/New_York"
-	dynos := []string{"life-together-calculator", "truthify"}
-
-	Wake(timezone, dynos)
-}
