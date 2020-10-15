@@ -12,7 +12,7 @@ import (
 //If it is not the correct time, it continues. If it is the correct time, it gets the urls
 func Wake(timezone string, prefixes []string) {
 	urls := convertPrefixes(prefixes)
-	for range time.Tick(halfHour) {
+	for range time.Tick(30 * time.Minute) {
 		ok := IsWakeTime(time.Now(), timezone)
 		if !ok {
 			continue
@@ -20,8 +20,6 @@ func Wake(timezone string, prefixes []string) {
 		getUrls(urls)
 	}
 }
-
-var halfHour time.Duration = 30 * time.Minute
 
 //isWakeTime checks if it is between 0600 and 1800 hours.
 func IsWakeTime(t time.Time, timezone string) bool {
