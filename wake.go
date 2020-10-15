@@ -10,10 +10,10 @@ import (
 
 //Wake takes a slice of heroku app prefixes and creates a slice of urls from them.
 //If it is not the correct time, it continues. If it is the correct time, it gets the urls
-func Wake(t time.Time, timezone string, prefixes []string) {
+func Wake(timezone string, prefixes []string) {
 	urls := convertPrefixes(prefixes)
-	ok := IsWakeTime(t, timezone)
 	for range time.Tick(halfHour) {
+		ok := IsWakeTime(time.Now(), timezone)
 		if !ok {
 			continue
 		}
