@@ -73,7 +73,7 @@ func GetUrlsConc(urls []string) ([]int, error) {
 	}
 	select {
 	case err := <-errc:
-		return sc, err
+		return []int{}, err
 	case <-c:
 		return sc, nil
 	}
