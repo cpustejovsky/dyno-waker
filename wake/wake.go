@@ -1,4 +1,4 @@
-package dyno_waker
+package wake
 
 import (
 	"io"
@@ -11,13 +11,13 @@ import (
 //Wake takes a slice of heroku app prefixes and creates a slice of urls from them.
 //If it is not the correct time, it continues. If it is the correct time, it gets the urls
 func Wake(timezone string, prefixes []string) {
-	urls := convertPrefixes(prefixes)
+	urls := ConvertPrefixes(prefixes)
 	for range time.Tick(30 * time.Minute) {
 		ok := IsWakeTime(time.Now(), timezone)
 		if !ok {
 			continue
 		}
-		getUrls(urls)
+		GetUrls(urls)
 	}
 }
 
@@ -31,7 +31,7 @@ func IsWakeTime(t time.Time, timezone string) bool {
 	return h >= 6 && h <= 21
 }
 
-func convertPrefixes(prefixes []string) []string {
+func ConvertPrefixes(prefixes []string) []string {
 	var urls []string
 	for _, pre := range prefixes {
 		urls = append(urls, "https://"+pre+".herokuapp.com")
@@ -39,7 +39,7 @@ func convertPrefixes(prefixes []string) []string {
 	return urls
 }
 
-func getUrls(urls []string) {
+func GetUrls(urls []string) {
 	for _, uri := range urls {
 		resp, err := http.Get(uri)
 		switch {

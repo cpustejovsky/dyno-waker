@@ -1,16 +1,18 @@
-package dyno_waker
+package wake_test
 
 import (
 	"log"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/cpustejovsky/dyno-waker/wake"
 )
 
 func TestConvertPrefixes(t *testing.T) {
 	dynos := []string{"life-together-calculator", "truthify"}
 	want := []string{"https://life-together-calculator.herokuapp.com", "https://truthify.herokuapp.com"}
-	got := convertPrefixes(dynos)
+	got := wake.ConvertPrefixes(dynos)
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("want %v; got %v", want, got)
 	}
@@ -55,7 +57,7 @@ func TestIsWakeTime(t *testing.T) {
 			log.Fatal(err)
 		}
 		testTime := time.Date(2020, 10, 14, tt.hour, 0, 0, 0, tz)
-		got := IsWakeTime(testTime, tt.timezone)
+		got := wake.IsWakeTime(testTime, tt.timezone)
 		if got != tt.want {
 			t.Errorf("want %v; got %v", tt.want, got)
 		}
