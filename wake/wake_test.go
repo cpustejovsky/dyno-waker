@@ -2,11 +2,13 @@ package wake_test
 
 import (
 	"log"
+	"net/http"
 	"reflect"
 	"testing"
 	"time"
 
 	"github.com/cpustejovsky/dyno-waker/wake"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestConvertPrefixes(t *testing.T) {
@@ -64,3 +66,28 @@ func TestIsWakeTime(t *testing.T) {
 	}
 
 }
+
+func TestGetUrls(t *testing.T) {
+	urls := []string{"https://cpustejovsky.com", "https://www.goarch.org/", "https://www.oca.org/"}
+
+	want := []int{http.StatusOK, http.StatusOK, http.StatusOK}
+
+	got, err := wake.GetUrls(urls)
+	if err != nil {
+		t.Errorf("Got error:\t%v", err)
+	}
+	assert.Equal(t, want, got)
+}
+
+func TestGetUrlsConc(t *testing.T) {
+	urls := []string{"https://cpustejovsky.com", "https://www.goarch.org/", "https://www.oca.org/"}
+
+	want := []int{http.StatusOK, http.StatusOK, http.StatusOK}
+
+	got, err := wake.GetUrlsConc(urls)
+	if err != nil {
+		t.Errorf("Got error:\t%v", err)
+	}
+	assert.Equal(t, want, got)
+}
+

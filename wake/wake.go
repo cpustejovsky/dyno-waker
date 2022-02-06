@@ -1,10 +1,9 @@
 package wake
 
 import (
-	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
+	"runtime"
 	"time"
 )
 
@@ -39,16 +38,43 @@ func ConvertPrefixes(prefixes []string) []string {
 	return urls
 }
 
-func GetUrls(urls []string) {
+func GetUrls(urls []string) ([]int, error) {
+	sc := []int{}
 	for _, uri := range urls {
 		resp, err := http.Get(uri)
-		switch {
-		case err != nil:
-			log.Printf("%s: %v", uri, err)
-		case err == nil:
-			log.Printf("%s: %d", uri, resp.StatusCode)
-			io.Copy(ioutil.Discard, resp.Body)
-			resp.Body.Close()
+		if err != nil {
+			return sc, err
 		}
+		resp.Body.Close()
+		sc = append(sc, resp.StatusCode)
+		// io.Copy(ioutil.Discard, resp.Body)
+	}
+	return sc, nil
+}
+
+func GetUrlsConc(urls []string) ([]int, error) {
+	g := runtime.GOMAXPROCS(0)
+	c := make(chan int, g)
+	errc := make(chan error, 1)
+	go func() {
+		defer close(c)
+		for _, url := range urls {
+			resp, err := http.Get(url)
+			if err != nil {
+				errc <- err
+				break
+			}
+			c <- resp.StatusCode
+		}
+	}()
+	sc := []int{}
+	for code := range c {
+		sc = append(sc, code)
+	}
+	select {
+	case err := <-errc:
+		return sc, err
+	case <-c:
+		return sc, nil
 	}
 }
