@@ -1,8 +1,10 @@
 package wake_test
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"net/http/httptest"
 	"reflect"
 	"testing"
 	"time"
@@ -68,7 +70,12 @@ func TestIsWakeTime(t *testing.T) {
 }
 
 func TestGetUrls(t *testing.T) {
-	urls := []string{"https://cpustejovsky.com", "https://www.goarch.org/", "https://www.oca.org/"}
+	expected := "dummy data"
+	svr := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, expected)
+	}))
+	defer svr.Close()
+	urls := []string{svr.URL, svr.URL, svr.URL}
 
 	want := []int{http.StatusOK, http.StatusOK, http.StatusOK}
 
@@ -80,7 +87,12 @@ func TestGetUrls(t *testing.T) {
 }
 
 func TestGetUrlsConc(t *testing.T) {
-	urls := []string{"https://cpustejovsky.com", "https://www.goarch.org/", "https://www.oca.org/"}
+	expected := "dummy data"
+	svr := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, expected)
+	}))
+	defer svr.Close()
+	urls := []string{svr.URL, svr.URL, svr.URL}
 
 	want := []int{http.StatusOK, http.StatusOK, http.StatusOK}
 
@@ -89,5 +101,5 @@ func TestGetUrlsConc(t *testing.T) {
 		t.Errorf("Got error:\t%v", err)
 	}
 	assert.Equal(t, want, got)
-}
 
+}
