@@ -103,3 +103,25 @@ func TestGetUrlsConc(t *testing.T) {
 	assert.Equal(t, want, got)
 
 }
+
+func BenchmarkGetUrls(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		svr := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprint(w, "TEST")
+		}))
+		defer svr.Close()
+		urls := []string{svr.URL, svr.URL, svr.URL}
+		wake.GetUrls(urls)
+	}
+}
+
+func BenchmarkGetUrlsConc(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		svr := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprint(w, "TEST")
+		}))
+		defer svr.Close()
+		urls := []string{svr.URL, svr.URL, svr.URL}
+		wake.GetUrlsConc(urls)
+	}
+}
