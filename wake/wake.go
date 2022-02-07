@@ -65,6 +65,7 @@ func GetUrlsConc(urls []string) ([]int, error) {
 				break
 			}
 			c <- resp.StatusCode
+			resp.Body.Close()
 		}
 	}()
 	sc := []int{}
